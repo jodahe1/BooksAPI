@@ -1,21 +1,18 @@
 require('dotenv').config();
 const express = require('express');
-const bodyParser = require('body-parser');
-const connectDB = require('./config/db');
-const booksRoutes = require('./routes/books');
+const mongoose = require('mongoose');
+const authRoutes = require('./routes/authRoutes');
+const bookRoutes = require('./routes/bookRoutes');
 
 const app = express();
+app.use(express.json());
 
-// Middleware
-app.use(bodyParser.json());
+mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
+  .then(() => console.log('Connected to MongoDB'))
+  .catch(err => console.error('MongoDB connection error:', err));
 
-// Connect to database
-connectDB();
+app.use('/auth', authRoutes);
+app.use('/books', bookRoutes);
 
-// Routes
-app.use('/books', booksRoutes);
-
-// Use PORT from environment variable or default to 3000
-const PORT = process.env.PORT || 3000;
-
+const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
